@@ -12,6 +12,7 @@ type UserDTO struct {
 
 type User struct {
 	Email    string `gorm:"primaryKey"`
+	Session  string `gorm:"primaryKey"`
 	Password string `gorm:"duplicate key"`
 	Name     string `gorm:"duplicate key"`
 	Grade    int64  `gorm:"duplicate key"`
