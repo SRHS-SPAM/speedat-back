@@ -1,12 +1,13 @@
 package entities
 
 type UserDTO struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-	Name     string `json:"name"`
-	Grade    int64  `json:"grade"`
-	Class    int64  `json:"class"`
-	Number   int64  `json:"number"`
+	Email      string `json:"email"`
+	VerifyCode int    `json:"verify_code"`
+	Password   string `json:"password"`
+	Name       string `json:"name"`
+	Grade      int64  `json:"grade"`
+	Class      int64  `json:"class"`
+	Number     int64  `json:"number"`
 }
 
 type User struct {
