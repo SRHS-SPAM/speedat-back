@@ -3,6 +3,7 @@ package controllers
 import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"log"
 	"speedat-back/services"
 	"time"
 )
@@ -20,7 +21,8 @@ func NewController(port string) {
 	auth := r.Group("auth")
 	{
 		auth.POST("/verify", func(c *gin.Context) {
-			services.VerifySend(c)
+			err := services.VerifySend(c)
+			log.Fatalln(err)
 		})
 	}
 
