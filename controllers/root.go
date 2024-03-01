@@ -22,7 +22,7 @@ func NewController(port string) {
 	{
 		auth.POST("/verify", func(c *gin.Context) {
 			err := services.VerifySend(c)
-			log.Fatalln(err)
+			log.Println(err)
 		})
 	}
 
