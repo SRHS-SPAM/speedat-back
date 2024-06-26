@@ -77,5 +77,5 @@ func VerifyEmail(mail string, code int) {
 		fmt.Println("Error closing writer:", err)
 		return
 	}
-	fmt.Println("Email sent successfully!")
+	//fmt.Println("Email sent successfully!")
 }

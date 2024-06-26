@@ -2,9 +2,11 @@ package services
 
 import (
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 	"math/rand"
 	"net/http"
 	"speedat-back/entities"
+	"unicode/utf8"
 )
 
 func VerifySend(c *gin.Context) error {
@@ -22,4 +24,35 @@ func VerifySend(c *gin.Context) error {
 		"message": RandomNumber,
 	})
 	return nil
+}
+
+func SignUp(c *gin.Context, rdb *gorm.DB) {
+	var user *entities.UserDTO
+
+	err := c.ShouldBindJSON(&user)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	upload := &entities.User{
+		Email: user.Email,
+		Password: user.Password,
+		Name: user.Name,
+		Grade: user.Grade,
+		Class: user.Class,
+		Number: user.Number,
+		ProfilePhoto: "기본값",
+	}
+
+	
+
+	if upload.Email != {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "이메일 도메인이 맞지않음"
+		})
+	}
+
 }
