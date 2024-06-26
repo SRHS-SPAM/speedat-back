@@ -2,11 +2,12 @@ package services
 
 import (
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 	"math/rand"
 	"net/http"
 	"speedat-back/entities"
-	"unicode/utf8"
+	"strings"
 )
 
 func VerifySend(c *gin.Context) error {
@@ -37,22 +38,45 @@ func SignUp(c *gin.Context, rdb *gorm.DB) {
 		return
 	}
 
+	domain := strings.Split(user.Email, "@")
+	if domain[1] != "sonline20.sen.go.kr" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "이메일 도메인이 맞지않음",
+		})
+		return
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "비밀번호 해싱 중 오류가 발생했습니다.",
+		})
+		return
+	}
+
 	upload := &entities.User{
-		Email: user.Email,
-		Password: user.Password,
-		Name: user.Name,
-		Grade: user.Grade,
-		Class: user.Class,
-		Number: user.Number,
+		Email:        user.Email,
+		Password:     string(hashedPassword),
+		Name:         user.Name,
+		Grade:        user.Grade,
+		Class:        user.Class,
+		Number:       user.Number,
 		ProfilePhoto: "기본값",
 	}
 
-	
-
-	if upload.Email != {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "이메일 도메인이 맞지않음"
+	if err := rdb.Create(upload).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "유저 정보를 데이터베이스에 삽입하는 중 오류가 발생했습니다.",
 		})
+		return
 	}
 
+	c.JSON(http.StatusCreated, gin.H{
+		"message": "회원가입 성공",
+		"user":    upload,
+	})
+}
+
+func Login(c *gin.Context, rdb *gorm.DB) {
+	
 }
