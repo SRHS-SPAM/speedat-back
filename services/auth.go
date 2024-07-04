@@ -1,14 +1,59 @@
 package services
 
 import (
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 	"math/rand"
 	"net/http"
+	"os"
 	"speedat-back/entities"
 	"strings"
+	"time"
 )
+
+var jwtSecret = []byte(os.Getenv("SECRET")) // 적절한 비밀 키 설정
+
+type Claims struct {
+	Email string `json:"email"`
+	jwt.StandardClaims
+}
+
+func generateJWT(email string) (string, error) {
+	expirationTime := time.Now().Add(24 * time.Hour)
+	claims := &Claims{
+		Email: email,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: expirationTime.Unix(),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString(jwtSecret)
+	if err != nil {
+		return "", err
+	}
+
+	return tokenString, nil
+}
+
+func parseJWT(tokenString string) (*Claims, error) {
+	claims := &Claims{}
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		return jwtSecret, nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if !token.Valid {
+		return nil, err
+	}
+
+	return claims, nil
+}
 
 func VerifySend(c *gin.Context) error {
 	var userDTO entities.UserDTO
