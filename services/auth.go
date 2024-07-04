@@ -123,5 +123,64 @@ func SignUp(c *gin.Context, rdb *gorm.DB) {
 }
 
 func Login(c *gin.Context, rdb *gorm.DB) {
+	var userDTO entities.UserDTO
 
+	err := c.ShouldBindJSON(&userDTO)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	var user entities.User
+	if err := rdb.Where("email = ?", userDTO.Email).First(&user).Error; err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": "이메일 또는 비밀번호가 잘못되었습니다",
+		})
+		return
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(userDTO.Password))
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"error": "이메일 또는 비밀번호가 잘못되었습니다",
+		})
+		return
+	}
+
+	tokenString, err := generateJWT(user.Email)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "토큰 생성 중 오류가 발생했습니다",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "로그인 성공",
+		"token":   tokenString,
+	})
+}
+
+func AuthMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		tokenString := c.GetHeader("Authorization")
+
+		if tokenString == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "토큰이 제공되지 않았습니다"})
+			c.Abort()
+			return
+		}
+
+		claims, err := parseJWT(tokenString)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "토큰이 유효하지 않습니다"})
+			c.Abort()
+			return
+		}
+
+		c.Set("email", claims.Email)
+		c.Next()
+	}
 }

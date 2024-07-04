@@ -15,5 +15,8 @@ func Auth(r *gin.Engine, rdb *gorm.DB) {
 		auth.POST("/signup", func(c *gin.Context) {
 			services.SignUp(c, rdb)
 		})
+		auth.POST("/login", func(c *gin.Context) {
+			services.Login(c, rdb)
+		})
 	}
 }
