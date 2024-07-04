@@ -78,5 +78,5 @@ func SignUp(c *gin.Context, rdb *gorm.DB) {
 }
 
 func Login(c *gin.Context, rdb *gorm.DB) {
-	
+
 }
