@@ -19,6 +19,7 @@ func NewController(port string) {
 	}))
 
 	Auth(r, rdb)
+	Post(r, rdb)
 
 	err := r.Run(port)
 	if err != nil {
